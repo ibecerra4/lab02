@@ -12,19 +12,29 @@ int main(int argc, char **arg){
 	char *input;
 	char **command;
 	int buffsize = 1024;
-	char **history = malloc(sizeof(char)*buffsize);
 
 	while(1){
 		input = readline("$ ");
 		command = tokenize(input);
-
-		if(command[0] != NULL){
-				
+		
+		if(command[0] == NULL){
+			continue;
+		}
+		else if(command[0] != NULL){
+			check_command(command);
 		}
 		else{
-			
+			int p = fork();
+			if(p<0){
+				printf("fork failed\n");
+			}
+			else if{	
 		}
 	}
+}
+
+void exit_command(char **args){
+	
 }
 
 void run_command(char **args){
