@@ -6,13 +6,15 @@
 #include <string.h>
 #include <readline/readline.h>
 
-
+int flag, pipeAt;
 char *commands[] = { "cd", "help", "exit"}; //Commands to be searched in bin
 
+//method to change directory
 void run_cd(char **args){
 	chdir(args[1]);
 }
 
+//method to print out internally defined commands
 void run_help(void){
 	printf("\n");
 	printf("LAB2 SHELL, version 1.0\n");
@@ -33,6 +35,12 @@ char **tokenize(char *input){ //Process user line
 
 		tokens[tokenNumber] = word; //Store token
 		
+		//if found pipe, then set flag to 1 so when calling from main, execute pipe command
+		if(strcpm(tokens[tokenNumber], "|")== 0){
+			flag = 1;
+			pipeAt = tokenNumber;
+		}
+
 		tokenNumber++;//Increase index
 		
 		word = strtok(NULL, " ");//Move to the next token
@@ -48,7 +56,7 @@ int check_command(char **args){
 	//iterate through command lists to search if the command is from our built in list
 	for(int commandNumber = 0; commandNumber < 3; commandNumber++){
 		//string compare, if return 0 that means that it is in the commands list
-		if(strcmp(args[0], commands[commandNumber]) == 0){ //If user command matches a known command, return true.
+		if(strcmp(args[0], commands[commandNumber]) == 0){ //If user command matches defined command, return true.
 			return commandNumber;//return index number so that we can use it with run_user_command
 		}
 	}
@@ -74,6 +82,7 @@ void run_user_command(int commandNumber, char **args){ //
 			break;
 	}
 }
+
 
 //method to print the current working directory
 void pwd(){
@@ -108,7 +117,6 @@ int main(int argc, char **arg){
 					exit(1);
 				}
 				else if(p==0){//child process
-					printf("inside child\n");
 					if(execvp(command[0], command) < 0){ //look through bin and execute
 						printf("%s: command not found", command[0]);//if execvp returns -1, print command not found
 						exit(1);
