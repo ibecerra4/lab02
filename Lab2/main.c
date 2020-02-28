@@ -25,22 +25,22 @@ void run_help(void){
 
 char **tokenize(char *input){ //Process user line
 	int tokenNumber = 0;
-	char *parsed;
+	char *word;
 	char **tokens = malloc(64*sizeof(char*));
 	
-	parsed = strtok(input, " "); //Split user line by the space
+	word = strtok(input, " "); //Split user line by the space
 	
-	while(parsed != NULL){ //Call strtok in a loop to get all tokens
-		printf(" %s\n", parsed); //TEMP
+	while(word != NULL){ //Call strtok in a loop to get all tokens
+		printf(" %s\n", word); //TEMP
 		
-		tokens[tokenNumber] = parsed; //Store token
+		tokens[tokenNumber] = word; //Store token
 		
 		tokenNumber++;//Increase index
 		
-		parsed = strtok(NULL, " ");//Move to the next token
+		word = strtok(NULL, " ");//Move to the next token
 	}
 	
-	tokens[tokenNumber] = "\0"; //Terminate array with NULL.
+	tokens[tokenNumber] = '\0'; //Terminate array with NULL.
 	
 	return tokens;
 }
@@ -51,32 +51,80 @@ int check_command(char **args){
 	for(int commandNumber = 0; commandNumber > strlen(commands); commandNumber++){
 		//string compare, if return 0 that means that it is in the commands list
 		if(strcmp(args[0], commands[commandNumber]) == 0){ //If user command matches a known command, return true.
-			return 1;
+			return commandNumber;
 		}
 	}
-	return 0; //Else, command is not vaild
+	return -1; //Else, command is not vaild
 }
 
-int run_user_command(char **args, int count){
-	int boolean = 0;
 
-	switch(args[0]){
-		case commands[0]:
-			boolean = run_cd(args);
+int run_user_command(int commandNumber, char **args){ //  
+	switch(commandNumber){
+		case 0:
+		    run_cd(args);
 			break;
 		
-		case commands[1]:
-			boolean = run_help();
+		case 1:
+			run_help();
 			break;
 		
-		case commands[2]:
-			boolean = run_exit();
-			break;
+		case 2:
+            		exit(0);
+            
 		default:
 			//Do something
 			break;
 	}
-
-	return boolean;
 }
+
+//reads user input
+int read_line(void){
+	char c = getchar();//immediately get first character or user input
+	int i=0;//c is character, i is to iterate
+	int buffsize = 512;//maximum size of string
+	char *line = malloc(sizeof(char)*buffsize);//allocate memory for the user input
+	while(c != EOF){//while the character is not -1
+		line[i]=c;//copy c to line at i
+		i++;//increment i to iterate through
+		c = getchar();//get character(because we are testing with EOF)
+	}
+	line[i] = '\0';
+	return line;//return complete user input
+}
+		
+
+int main(int argc, char **arg){ 
+	char *input;
+	char **command;
+	
+	while(1){ //While true, runs forever
+		printf("$ ");//print command prompt
+		input = read_line(); //read input from user
+		command = tokenize(input); //Tokenize the input string to use for arguments later
+
+		if(command[0] != NULL){ //While there is a next word in user input,
+			int command_number = check_command(command[0]);
+			if(command_number != -1){
+				run_user_command(command_number, command);
+		}
+		else{
+			printf("error?");
+		}
+	}
+}   
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
