@@ -9,7 +9,7 @@
 
 
 char *commands[] = { "cd", "help", "exit"}; //Commands to be searched in bin
-static char *envp[100];
+
 void run_cd(char **args){
 	chdir(args[1]);
 }
@@ -46,28 +46,28 @@ char **tokenize(char *input){ //Process user line
 
 //Iterate through commands to see what user is asking for
 int check_command(char **args){
-	
+	//iterate through command lists to search if the command is from our built in list
 	for(int commandNumber = 0; commandNumber < 3; commandNumber++){
 		//string compare, if return 0 that means that it is in the commands list
 		if(strcmp(args[0], commands[commandNumber]) == 0){ //If user command matches a known command, return true.
-			return commandNumber;
+			return commandNumber;//return index number so that we can use it with run_user_command
 		}
 	}
-	return -1; //Else, command is not vaild
+	return -1; //Else, command is not from our built in commands
 }
 
-
+//method accepts index of the command needing to execute and the arguments
 void run_user_command(int commandNumber, char **args){ //  
 	switch(commandNumber){
-		case 0:
+		case 0://if index 0, run the cd method
 		    run_cd(args);
 			break;
 		
-		case 1:
+		case 1://if index 1, run the help method
 			run_help();
 			break;
 		
-		case 2:
+		case 2://if index 2, exit the shell
             		exit(0);
             
 		default:
@@ -76,20 +76,14 @@ void run_user_command(int commandNumber, char **args){ //
 	}
 }
 
+//method to print the current working directory
 void pwd(){
 	char cwd[1024]; 
-	getcwd(cwd, sizeof(cwd));
+	getcwd(cwd, sizeof(cwd));//get current working directory
 	setenv("PS1", "$", 1);//override PS1 variable with dollar sign
-	printf("%s@%s%s", getenv("USER"), getenv("HOME"), getenv("PS1"));
-	printf(":%s", cwd); 
+	printf("%s@%s%s", getenv("USER"), getenv("HOME"), getenv("PS1"));//print USER, HOME, and PS1
+	printf(":%s", cwd); //print working directory
 } 
-
-void copy_envp(char **envp){
-	for(int i = 0;;envp[i] != NULL; i++) {
-		my_envp[i] = (char *)malloc(sizeof(char) * (strlen(envp[i]) + 1));
-		memcpy(my_envp[i], envp[i], strlen(envp[i]));
-	}
-}
 
 int main(int argc, char **arg){ 
 	char *input;//user input
@@ -97,7 +91,7 @@ int main(int argc, char **arg){
 
 	while(1){ //While true, runs forever
 		printf("\n");
-		pwd();//print directory
+		pwd();//print working directory
 
 		input = readline("$ "); //read input from user
 		
@@ -108,25 +102,24 @@ int main(int argc, char **arg){
 			if(command_number != -1){//if command does exist, then run the command
 				run_user_command(command_number, command);//running the command
 			}else{//if command doesn't exist in built in, then look through bin
-				char *envp[] = {getenv("PATH")};
 				//Forking process to get parent and child
-				printf("inside else\n");
 				int p = fork();
-				if(p<0){//fork failed
+				if(p<0){//fork failed, exit
 					printf("fork failed\n");
 					exit(1);
 				}
 				else if(p==0){//child process
 					printf("inside child\n");
-					if(execve(command[0], &command[0], envp) < 0){ //if given absolute path, execute
-						printf("%s: command not found", command[0]);
+					if(execvp(command[0], &command[0]) < 0){ //look through bin and execute
+						printf("%s: command not found", command[0]);//if execvp returns -1, print command not found
 						exit(1);
 					}
 				} else{//parent proccess
-					wait(NULL);}
+					wait(NULL);//make the parent wait
+				}
 			}
 		}
-		free(input);
-		free(command);
+		free(input);//free token
+		free(command);//free tokenizer
 	}
 }  
