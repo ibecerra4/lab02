@@ -4,6 +4,9 @@
 #include<unistd.h> 
 #include <unistd.h>
 #include <sys/wait.h>
+#include <string.h>
+
+
 
 char *commands[] = { "cd", "help", "exit"}; //Commands to be searched in bin
 
@@ -69,7 +72,7 @@ int run_user_command(int commandNumber, char **args){ //
 			break;
 		
 		case 2:
-            		exit(0);
+            exit(0);
             
 		default:
 			//Do something
@@ -80,51 +83,46 @@ int run_user_command(int commandNumber, char **args){ //
 //reads user input
 int read_line(void){
 	char c = getchar();//immediately get first character or user input
-	int i=0;//c is character, i is to iterate
+	printf("this is C: %c", c);
+	int i = 0;//c is character, i is to iterate
 	int buffsize = 512;//maximum size of string
 	char *line = malloc(sizeof(char)*buffsize);//allocate memory for the user input
-	while(c != EOF){//while the character is not -1
+	
+	printf("outside while loop");
+	while(c != '\n'){//while the character is not -1
+		printf("inside while loop %i", i);
 		line[i]=c;//copy c to line at i
 		i++;//increment i to iterate through
 		c = getchar();//get character(because we are testing with EOF)
 	}
+	
 	line[i] = '\0';
+	
 	return line;//return complete user input
 }
 		
 
 int main(int argc, char **arg){ 
 	char *input;
+	
+
 	char **command;
 	
 	while(1){ //While true, runs forever
 		printf("$ ");//print command prompt
-		input = read_line(); //read input from user
+		input = readline("$ "); //read input from user
+		printf("We readeded the line yeiiiii");
+		
 		command = tokenize(input); //Tokenize the input string to use for arguments later
-
+		printf("we have tokenized  ----------------");
 		if(command[0] != NULL){ //While there is a next word in user input,
 			int command_number = check_command(command[0]);
 			if(command_number != -1){
 				run_user_command(command_number, command);
+			}
 		}
 		else{
 			printf("error?");
 		}
 	}
-}   
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+}  
