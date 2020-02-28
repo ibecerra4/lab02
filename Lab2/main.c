@@ -109,7 +109,7 @@ int main(int argc, char **arg){
 				}
 				else if(p==0){//child process
 					printf("inside child\n");
-					if(execvp(command[0], &command[0]) < 0){ //look through bin and execute
+					if(execvp(command[0], command) < 0){ //look through bin and execute
 						printf("%s: command not found", command[0]);//if execvp returns -1, print command not found
 						exit(1);
 					}
