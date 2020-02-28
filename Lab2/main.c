@@ -9,7 +9,7 @@
 
 
 char *commands[] = { "cd", "help", "exit"}; //Commands to be searched in bin
-
+static char *envp[100];
 void run_cd(char **args){
 	chdir(args[1]);
 }
@@ -78,18 +78,27 @@ void run_user_command(int commandNumber, char **args){ //
 
 void pwd(){
 	char cwd[1024]; 
-	getcwd(cwd, sizeof(cwd)); 
+	getcwd(cwd, sizeof(cwd));
+	setenv("PS1", "$", 1);//override PS1 variable with dollar sign
+	printf("%s@%s%s", getenv("USER"), getenv("HOME"), getenv("PS1"));
 	printf(":%s", cwd); 
 } 
 
-int main(int argc, char **arg){ 
-	char *input;
-	//struct stat file_stat;
+void copy_envp(char **envp){
+	for(int i = 0;;envp[i] != NULL; i++) {
+		my_envp[i] = (char *)malloc(sizeof(char) * (strlen(envp[i]) + 1));
+		memcpy(my_envp[i], envp[i], strlen(envp[i]));
+	}
+}
 
-	char **command;
-	
+int main(int argc, char **arg){ 
+	char *input;//user input
+	char **command;//pointer of pointers for commands
+
 	while(1){ //While true, runs forever
-		pwd();
+		printf("\n");
+		pwd();//print directory
+
 		input = readline("$ "); //read input from user
 		
 		command = tokenize(input); //Tokenize the input string to use for arguments later
@@ -98,27 +107,24 @@ int main(int argc, char **arg){
 			int command_number = check_command(command);//check if command exists
 			if(command_number != -1){//if command does exist, then run the command
 				run_user_command(command_number, command);//running the command
-			}
-			else{
-				
-			}
-		}
-		else if{//if command doesn't exist in built in, then look through bin
-			//int my_pipe[2];//pipe[o] reads, pipe[1] writes
-			//pipe(my_pipe);
-			//Forking process to get parent and child
-			int p = fork();
-			if(p<0){
-				printf("fork failed\n");
-				return;
-			}
-			else if(p==0){//child process
-				if(stat(command[0], &file_stat) == 0){ //if given absolute path, execute
-					execve(command[0], command, getenv("PATH"));
+			}else{//if command doesn't exist in built in, then look through bin
+				char *envp[] = {getenv("PATH")};
+				//Forking process to get parent and child
+				printf("inside else\n");
+				int p = fork();
+				if(p<0){//fork failed
+					printf("fork failed\n");
+					exit(1);
 				}
-			else{
-				
-			}printf("\n");
+				else if(p==0){//child process
+					printf("inside child\n");
+					if(execve(command[0], &command[0], envp) < 0){ //if given absolute path, execute
+						printf("%s: command not found", command[0]);
+						exit(1);
+					}
+				} else{//parent proccess
+					wait(NULL);}
+			}
 		}
 		free(input);
 		free(command);
