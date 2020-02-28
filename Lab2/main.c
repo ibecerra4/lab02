@@ -5,7 +5,7 @@
 #include <unistd.h>
 #include <sys/wait.h>
 #include <string.h>
-
+#include <readline/readline.h>
 
 
 char *commands[] = { "cd", "help", "exit"}; //Commands to be searched in bin
