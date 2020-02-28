@@ -15,6 +15,6 @@ variable).
 
 For commands that are not buid in, the program will fork and look for the
 desired command inside bin using execvp, where it might be found and then 
-runned.
+ran.
 
 
