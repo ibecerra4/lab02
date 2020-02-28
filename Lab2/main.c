@@ -76,13 +76,20 @@ void run_user_command(int commandNumber, char **args){ //
 	}
 }
 
+void pwd(){
+	char cwd[1024]; 
+	getcwd(cwd, sizeof(cwd)); 
+	printf(":%s", cwd); 
+} 
+
 int main(int argc, char **arg){ 
 	char *input;
-	
+	//struct stat file_stat;
 
 	char **command;
 	
 	while(1){ //While true, runs forever
+		pwd();
 		input = readline("$ "); //read input from user
 		
 		command = tokenize(input); //Tokenize the input string to use for arguments later
@@ -93,12 +100,25 @@ int main(int argc, char **arg){
 				run_user_command(command_number, command);//running the command
 			}
 		}
-		else{//if command doesn't exist, then look through bin
-			p = fork();
+		/*else if{//if command doesn't exist in built in, then look through bin
+			//int my_pipe[2];//pipe[o] reads, pipe[1] writes
+			//pipe(my_pipe);
+			//Forking process to get parent and child
+			int p = fork();
 			if(p<0){
 				printf("fork failed\n");
-				exit(1);
+				return;
 			}
+			e/*lse if(p==0){//child process
+				if(stat(command[0], &file_stat) == 0){ //if given absolute path, execute
+					execve(command[0], command, getenv("PATH"));
+				}
+			else{
+				
+			}printf("\n");
 		}
+		else{
+			printf("command not found");
+		}*/
 	}
 }  
