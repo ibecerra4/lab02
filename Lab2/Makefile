@@ -6,5 +6,8 @@ p3-exec: p3-exec.o
 p4-redirect: p4-redirect.o
 main: main.o
 
+build:
+	gcc main.c -o run -lreadlines
+	./run
 clean:
 	rm -f *.o p1-fork p2-wait p3-exec p4-redirect p4-output.txt main
