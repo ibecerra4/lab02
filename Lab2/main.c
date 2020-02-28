@@ -36,7 +36,7 @@ char **tokenize(char *input){ //Process user line
 		tokens[tokenNumber] = word; //Store token
 		
 		//if found pipe, then set flag to 1 so when calling from main, execute pipe command
-		if(strcpm(tokens[tokenNumber], "|")== 0){
+		if(strcmp(tokens[tokenNumber], "|")== 0){
 			flag = 1;
 			pipeAt = tokenNumber;
 		}
