@@ -99,8 +99,11 @@ int main(int argc, char **arg){
 			if(command_number != -1){//if command does exist, then run the command
 				run_user_command(command_number, command);//running the command
 			}
+			else{
+				
+			}
 		}
-		/*else if{//if command doesn't exist in built in, then look through bin
+		else if{//if command doesn't exist in built in, then look through bin
 			//int my_pipe[2];//pipe[o] reads, pipe[1] writes
 			//pipe(my_pipe);
 			//Forking process to get parent and child
@@ -109,7 +112,7 @@ int main(int argc, char **arg){
 				printf("fork failed\n");
 				return;
 			}
-			e/*lse if(p==0){//child process
+			else if(p==0){//child process
 				if(stat(command[0], &file_stat) == 0){ //if given absolute path, execute
 					execve(command[0], command, getenv("PATH"));
 				}
@@ -117,8 +120,7 @@ int main(int argc, char **arg){
 				
 			}printf("\n");
 		}
-		else{
-			printf("command not found");
-		}*/
+		free(input);
+		free(command);
 	}
 }  
