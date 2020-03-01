@@ -15,8 +15,7 @@ char *commands[] = { "cd", "help", "exit"}; //Commands to be searched in bin
 void run_cd(char **args){
 	char ** directories = strtok(args[1], '\\');
 	for(int path = 0;path <len(directories);path++){
-		chdir(directories[1]);
-		i++;
+		chdir(directories[path]);
 	}
 }
 
@@ -61,14 +60,14 @@ int checkForIORedirection(char** commands){ //Takes tokinzed commands ; Returns 
 
 char* getFileName(char** commands){//Get the argument before the "<" or ">" symbol.
     for(int commandNumber = 0; commandNumber < len(commands); commandNumber++ ){
-        if(strcmp(commands[commandNumber], '<') == 0 || strcmp(command[commandNumber], '>' == 0)){
+        if(strcmp(commands[commandNumber], '<') == 0 || strcmp(commands[commandNumber], '>' == 0)){
             return commands[commandNumber - 1];
         }
     }
     return NULL;
 }
 //Method based of http://people.cs.pitt.edu/~khalifa/cs449/spr07/Assigns/Assign4/myshell.c do_command method.
-int do_command(char **commands, int IOflag), char* fileName) { //Takes processed user input, the flag that contains the opertaion to perform, and the file name.
+int do_command(char **commands, int IOflag, char* fileName) { //Takes processed user input, the flag that contains the opertaion to perform, and the file name.
   
   int result;
   pid_t child_id;
@@ -76,16 +75,6 @@ int do_command(char **commands, int IOflag), char* fileName) { //Takes processed
 
   // Fork the child process
   child_id = fork();
-
-  // Check for errors in fork()
-  switch(child_id) {
-  case EAGAIN:
-    perror("Error EAGAIN: ");
-    return;
-  case ENOMEM:
-    perror("Error ENOMEM: ");
-    return;
-  }
 
   if(child_id == 0) {
     // Set up redirection in the child process
@@ -99,13 +88,7 @@ int do_command(char **commands, int IOflag), char* fileName) { //Takes processed
     result = execvp(args[0], args);
 
     exit(-1);
-  }
-
-  // Wait for the child process to complete, if necessary
-  if(block) {
-    printf("Waiting for child, pid = %d\n", child_id);
-    result = waitpid(child_id, &status, 0);
-  }
+    }
 }
 
 char **tokenize(char *input){ //Process user line
