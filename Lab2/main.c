@@ -113,13 +113,13 @@ char **tokenize(char *input){ //Process user line
 	char *word;
 	char **tokens = malloc(64*sizeof(char*));
 	
-	word = strtok(input, " \/"); //Split user line by the space
+	word = strtok(input, " /"); //Split user line by the space
 	
 	while(word != NULL){ //Call strtok in a loop to get all tokens
 
 		tokens[tokenNumber] = word; //Store token
 		
-		//if found pipe, then set flag to 1 so when calling from main, execute pipe command
+		//if found pipe, then set flag to 1 so when calling from main, execute pipe command or normal command
 		if(strcmp(tokens[tokenNumber], "|")== 0){
 			flag = 1;
 			pipeAt = tokenNumber;
@@ -127,7 +127,7 @@ char **tokenize(char *input){ //Process user line
 
 		tokenNumber++;//Increase index
 		
-		word = strtok(NULL, " \/");//Move to the next token
+		word = strtok(NULL, " /");//Move to the next token
 	}
 	
 	tokens[tokenNumber] = '\0'; //Terminate array with NULL.
@@ -135,14 +135,25 @@ char **tokenize(char *input){ //Process user line
 	return tokens;
 }
 
-char **pipe_tokenizer(char **tokens){
-	int tokenNumber =0;
-	char *word;
-	char **tokens_before_pipe =tokens;
-	char **tokens_after_pipe = malloc(64*sizeof(char*));	
-	
-	while(
-	
+char **before_split_tokenizer(char **args){
+	char **before_pipe;
+	int i =0;
+	while( i != pipeAt){
+		before_pipe[i] = args[i];
+		i++;
+	}
+	return before_pipe;
+}
+
+char **after_split_tokenizer(char **args){
+	char **after_pipe;
+	int i=pipeAt;
+	while( *args != '\0'){
+		after_pipe[i] = args[i];
+		args++;
+	}
+	return after_pipe;	
+}
 
 //Iterate through commands to see what user is asking for
 int check_command(char **args){
@@ -187,7 +198,7 @@ void pwd(){
 } 
 
 //method to run a command that pipes
-void run_piped_command(char **args1, char args2){
+void run_piped_command(char **args1, char **args2){
 	int my_pipe[2];//pipe[0] reads, pipe[1] writes
 	pid_t p1, p2;
 	
@@ -199,29 +210,37 @@ void run_piped_command(char **args1, char args2){
 		exit(1);
 	}
 	if(p1 == 0){//child 1 executes
-		close(my_pipe[1]);
-
+		close(my_pipe[0]); //close reading entrance because we only want to write
+		dup2(my_pipe[1], 1);
+		close(my_pipe[0]);//close reading entrance
+		if(execvp(args1[0], args1) < 0){
+			printf("%s: command not found", args1[0]);//if execvp returns -1, print command
+			exit(0);
+		}
 	}else{//child 2 executes
 		p2 = fork();
 		
 		if(p2<0){
-			printf("fork failed\n"); 
+			printf("Fork failed\n"); 
 			exit(1);
 		}
 		if (p2 == 0){
-			close(my_pipe[1]);//close write side because we only want to read 
-			read(my_pipe[0], ,);
-			close(my_pipe[0]); //close reading entrance
-			if(execvp(,) < 0){
-				printf("");
+			close(my_pipe[1]);//close writing entrance because we only want to read 
+			dup2(my_pipe[0], 0);
+			close(my_pipe[1]); //close writing entrance
+			if(execvp(args2[0], args2) < 0){
+				printf("%s: command not found", args2[0]);//if execvp returns -1, print command
 				exit(0);
 			}
+		} else{
+			wait(NULL);
+			wait(NULL);
 		}			
 	}
 }
 
 //method to run a normal command without pipes
-void run_normal_command(char **args){
+void run_normal_command(char **command){
 	//Forking process to get parent and child
 	int p = fork();
 	if(p<0){//fork failed, exit
@@ -255,11 +274,13 @@ int main(int argc, char **arg){
 			if(command_number != -1){//if command does exist, then run the command
 				run_user_command(command_number, command);//running the command
 			}else{//if command doesn't exist in built in, then use execvp to use bin commands
-				if(flag != 1){
+				if(flag != 1){//run normal command if no pipe found during tokenizing
 					run_normal_command(command);
 				}
-				else{
-					run_piped_command(command);
+				else{//run command if pipe is found during tokenizing
+					char ** before_pipe = before_split_tokenizer(command);
+					char ** after_pipe = after_split_tokenizer(command);
+					run_piped_command(before_pipe, after_pipe);
 				}
 				
 			}
