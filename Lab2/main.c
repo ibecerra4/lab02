@@ -13,7 +13,11 @@ char *commands[] = { "cd", "help", "exit"}; //Commands to be searched in bin
 
 //method to change directory
 void run_cd(char **args){
-	chdir(args[1]);
+	char ** directories = strtok(args[1], '\\');
+	for(int path = 0;path <len(directories);path++){
+		chdir(directories[1]);
+		i++;
+	}
 }
 
 //method to print out internally defined commands
@@ -109,7 +113,7 @@ char **tokenize(char *input){ //Process user line
 	char *word;
 	char **tokens = malloc(64*sizeof(char*));
 	
-	word = strtok(input, " /"); //Split user line by the space
+	word = strtok(input, " \/"); //Split user line by the space
 	
 	while(word != NULL){ //Call strtok in a loop to get all tokens
 
@@ -123,7 +127,7 @@ char **tokenize(char *input){ //Process user line
 
 		tokenNumber++;//Increase index
 		
-		word = strtok(NULL, " /");//Move to the next token
+		word = strtok(NULL, " \/");//Move to the next token
 	}
 	
 	tokens[tokenNumber] = '\0'; //Terminate array with NULL.
@@ -183,7 +187,7 @@ void pwd(){
 } 
 
 //method to run a command that pipes
-void run_pipe_command(char **args1, char args2){
+void run_piped_command(char **args1, char args2){
 	int my_pipe[2];//pipe[0] reads, pipe[1] writes
 	pid_t p1, p2;
 	
@@ -216,6 +220,24 @@ void run_pipe_command(char **args1, char args2){
 	}
 }
 
+//method to run a normal command without pipes
+void run_normal_command(char **args){
+	//Forking process to get parent and child
+	int p = fork();
+	if(p<0){//fork failed, exit
+		printf("fork failed\n");
+		exit(1);
+	}
+	else if(p==0){//child process
+		if(execvp(command[0], command) < 0){ //look through bin and execute
+			printf("%s: command not found", command[0]);//if execvp returns -1, print command not found
+			exit(1);
+		}
+	} else{//parent proccess
+		wait(NULL);//make the parent wait
+	}
+}	
+
 int main(int argc, char **arg){ 
 	char *input;//user input
 	char **command;//pointer of pointers for commands
@@ -232,21 +254,14 @@ int main(int argc, char **arg){
 			int command_number = check_command(command);//check if command exists
 			if(command_number != -1){//if command does exist, then run the command
 				run_user_command(command_number, command);//running the command
-			}else{//if command doesn't exist in built in, then look through bin
-				//Forking process to get parent and child
-				int p = fork();
-				if(p<0){//fork failed, exit
-					printf("fork failed\n");
-					exit(1);
+			}else{//if command doesn't exist in built in, then use execvp to use bin commands
+				if(flag != 1){
+					run_normal_command(command);
 				}
-				else if(p==0){//child process
-					if(execvp(command[0], command) < 0){ //look through bin and execute
-						printf("%s: command not found", command[0]);//if execvp returns -1, print command not found
-						exit(1);
-					}
-				} else{//parent proccess
-					wait(NULL);//make the parent wait
+				else{
+					run_piped_command(command);
 				}
+				
 			}
 		}
 		free(input);//free token
