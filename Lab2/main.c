@@ -51,6 +51,15 @@ char **tokenize(char *input){ //Process user line
 	return tokens;
 }
 
+char **pipe_tokenizer(char **tokens){
+	int tokenNumber =0;
+	char *word;
+	char **tokens_before_pipe =tokens;
+	char **tokens_after_pipe = malloc(64*sizeof(char*));	
+	
+	while(
+	
+
 //Iterate through commands to see what user is asking for
 int check_command(char **args){
 	//iterate through command lists to search if the command is from our built in list
@@ -93,6 +102,40 @@ void pwd(){
 	printf(":%s", cwd); //print working directory
 } 
 
+//method to run a command that pipes
+void run_pipe_command(char **args1, char args2){
+	int my_pipe[2];//pipe[0] reads, pipe[1] writes
+	pid_t p1, p2;
+	
+	pipe(my_pipe);
+	
+	p1 = fork();
+	if(p1<0){//fork failed
+		printf("fork failed\n"); 
+		exit(1);
+	}
+	if(p1 == 0){//child 1 executes
+		close(my_pipe[1]);
+
+	}else{//child 2 executes
+		p2 = fork();
+		
+		if(p2<0){
+			printf("fork failed\n"); 
+			exit(1);
+		}
+		if (p2 == 0){
+			close(my_pipe[1]);//close write side because we only want to read 
+			read(my_pipe[0], ,);
+			close(my_pipe[0]); //close reading entrance
+			if(execvp(,) < 0){
+				printf("");
+				exit(0);
+			}
+		}			
+	}
+}
+
 int main(int argc, char **arg){ 
 	char *input;//user input
 	char **command;//pointer of pointers for commands
@@ -101,7 +144,7 @@ int main(int argc, char **arg){
 		printf("\n");
 		pwd();//print working directory
 
-		input = readline("$ "); //read input from user
+		input = readline(""); //read input from user
 		
 		command = tokenize(input); //Tokenize the input string to use for arguments later
 
