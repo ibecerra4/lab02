@@ -29,7 +29,7 @@ char **tokenize(char *input){ //Process user line
 	char *word;
 	char **tokens = malloc(64*sizeof(char*));
 	
-	word = strtok(input, " "); //Split user line by the space
+	word = strtok(input, " /"); //Split user line by the space
 	
 	while(word != NULL){ //Call strtok in a loop to get all tokens
 
@@ -43,7 +43,7 @@ char **tokenize(char *input){ //Process user line
 
 		tokenNumber++;//Increase index
 		
-		word = strtok(NULL, " ");//Move to the next token
+		word = strtok(NULL, " /");//Move to the next token
 	}
 	
 	tokens[tokenNumber] = '\0'; //Terminate array with NULL.
