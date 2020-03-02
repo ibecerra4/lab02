@@ -13,10 +13,6 @@ char *commands[] = { "cd", "help", "exit"}; //Commands to be searched in bin
 
 //method to change directory
 void run_cd(char **args){
-<<<<<<< HEAD
-	char ** directories = strtok(args[1], "\\");
-	for(int path = 0;path <len(directories);path++){
-=======
     char** directories;
 
 	char * directory = strtok(args[1], "\\");
@@ -27,7 +23,6 @@ void run_cd(char **args){
         directory = strtok(NULL, "\\");
     }
 	for(int path = 0; path < strlen(directories); path++){
->>>>>>> 3b9eb6b3ddd9da45281aa61fcbae6fd381f5cf25
 		chdir(directories[path]);
 	}
 }
