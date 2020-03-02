@@ -1,0 +1,12 @@
+main2.c
+main.c
+Makefile
+out.txt
+p1fork.c
+p2wait.c
+p3exec.c
+p4redirect.c
+ReadMe.txt
+runMain
+testLog.txt
+testShell.sh

@@ -8,7 +8,7 @@
 #include <signal.h>
 #include <sys/types.h>
 
-int flag, pipeAt, redirectFlag;
+int flag, pipeAt, redirectFlag, countWords;
 char *commands[] = { "cd", "help", "exit"}; //Commands to be searched in bin
 
 
@@ -98,17 +98,17 @@ char **tokenize(char *input){ //Process user line
 	char **tokens = malloc(64*sizeof(char*));
 	
 	word = strtok(input, " /"); //Split user line by the space
-	
+	countWords =0;
 	while(word != NULL){ //Call strtok in a loop to get all tokens
 
 		tokens[tokenNumber] = word; //Store token
 		
 		//if found pipe, then set flag to 1 so when calling from main, execute pipe command or normal command
 		if(strcmp(tokens[tokenNumber], "|")== 0){
-			flag = 1;
-			pipeAt = tokenNumber;
+			flag = 1;//flag goes up if there is a | 
+			pipeAt = tokenNumber;//store where the pipe is so we can use later
 		}
-
+		countWords++;//increase countWords so we can know how many words are in total
 		tokenNumber++;//Increase index
 		
 		word = strtok(NULL, " /");//Move to the next token
@@ -123,22 +123,24 @@ char **tokenize(char *input){ //Process user line
 	return tokens;
 }
 
+//method to split before the pipe character
 char **before_split_tokenizer(char **args){
 	char **before_pipe;
-	int i =0;
-	while( i != pipeAt){
-		before_pipe[i] = args[i];
+	int i =0;//i is where the pipe at args is, that way we can know where to stop as we increase i
+	while( i <= pipeAt){
+		before_pipe[i] = args[i];//copy to new tokenizer that has the characters after the pipe character
 		i++;
 	}
 	return before_pipe;
 }
 
+//method to split after the pipe character
 char **after_split_tokenizer(char **args){
 	char **after_pipe;
-	int i=pipeAt;
-	while( *args != '\0'){
-		after_pipe[i] = args[i];
-		args++;
+	int i=pipeAt;//i is where the pipe at args is, that way we can know where to continue from as we increase i
+	while(i <= countWords){
+		after_pipe[i] = args[i];//copy to new tokenizer that has the characters after the pipe character
+		i++;
 	}
 	return after_pipe;	
 }
@@ -266,15 +268,15 @@ int main(int argc, char **arg){
 				if(flag != 1){//run normal command if no pipe found during tokenizing
 					run_normal_command(command);
 				}
+				else if(redirectFlag == 1){
+					int operation = checkForIORedirection(command);
+					redirect(command, operation, getFileName(command));
+				}
 				else{//run command if pipe is found during tokenizing
 					char ** before_pipe = before_split_tokenizer(command);
 					char ** after_pipe = after_split_tokenizer(command);
 				
 					run_piped_command(before_pipe, after_pipe);
-				}
-				if(redirectFlag == 1){
-					int operation = checkForIORedirection(command);
-					redirect(command, operation, getFileName(command));
 				}
 			}
 		}
