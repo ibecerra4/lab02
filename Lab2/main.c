@@ -8,7 +8,7 @@
 #include <signal.h>
 #include <sys/types.h>
 
-int flag, pipeAt;
+int flag, pipeAt, redirectFlag;
 char *commands[] = { "cd", "help", "exit"}; //Commands to be searched in bin
 
 
@@ -68,7 +68,7 @@ char* getFileName(char** commands){//Get the argument before the "<" or ">" symb
     return NULL;
 }
 //Method based of http://people.cs.pitt.edu/~khalifa/cs449/spr07/Assigns/Assign4/myshell.c do_command method.
-int do_command(char **commands, int IOflag, char* fileName) { //Takes processed user input, the flag that contains the opertaion to perform, and the file name.
+int redirect(char **commands, int IOflag, char* fileName) { //Takes processed user input, the flag that contains the opertaion to perform, and the file name.
   
   int result;
   pid_t child_id;
@@ -116,6 +116,10 @@ char **tokenize(char *input){ //Process user line
 	
 	tokens[tokenNumber] = '\0'; //Terminate array with NULL.
 	
+	if(checkForIORedirection(tokens)){
+		redirectFlag = 1;
+	}
+
 	return tokens;
 }
 
@@ -254,16 +258,23 @@ int main(int argc, char **arg){
 
 		if(command[0] != NULL){ //While there is a next word in user input,			
 			int command_number = check_command(command);//check if command exists
+			
 			if(command_number != -1){//if command does exist, then run the command
 				run_user_command(command_number, command);//running the command
-			}else{//if command doesn't exist in built in, then use execvp to use bin commands
+			}
+			else{//if command doesn't exist in built in, then use execvp to use bin commands
 				if(flag != 1){//run normal command if no pipe found during tokenizing
 					run_normal_command(command);
 				}
 				else{//run command if pipe is found during tokenizing
 					char ** before_pipe = before_split_tokenizer(command);
 					char ** after_pipe = after_split_tokenizer(command);
+				
 					run_piped_command(before_pipe, after_pipe);
+				}
+				if(redirectFlag == 1){
+					int operation = checkForIORedirection(command);
+					redirect(command, operation, getFileName(command));
 				}
 			}
 		}
