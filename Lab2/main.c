@@ -13,7 +13,7 @@ char *commands[] = { "cd", "help", "exit"}; //Commands to be searched in bin
 
 //method to change directory
 void run_cd(char **args){
-	char ** directories = strtok(args[1], '\\');
+	char ** directories = strtok(args[1], "\\");
 	for(int path = 0;path <len(directories);path++){
 		chdir(directories[path]);
 	}
