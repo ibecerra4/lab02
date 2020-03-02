@@ -8,7 +8,7 @@
 #include <signal.h>
 #include <sys/types.h>
 
-int flag, pipeAt;
+int flag, pipeAt, countWords;
 char *commands[] = { "cd", "help", "exit"}; //Commands to be searched in bin
 
 
@@ -103,10 +103,10 @@ char **tokenize(char *input){ //Process user line
 
 		tokens[tokenNumber] = word; //Store token
 		
-		//if found pipe, then set flag to 1 so when calling from main, execute pipe command or normal command
+		//if found pipe, then set flag to 1 so when calling from main, execute pipe command if flag is 1
 		if(strcmp(tokens[tokenNumber], "|")== 0){
 			flag = 1;
-			pipeAt = tokenNumber;
+			pipeAt = tokenNumber; 
 		}
 
 		tokenNumber++;//Increase index
@@ -132,9 +132,9 @@ char **before_split_tokenizer(char **args){
 char **after_split_tokenizer(char **args){
 	char **after_pipe;
 	int i=pipeAt;
-	while( **args != '\0'){
+	while(i != countWords){
 		after_pipe[i] = args[i];
-		*args++;
+		i++;
 	}
 	return after_pipe;	
 }
@@ -261,11 +261,10 @@ int main(int argc, char **arg){
 					run_normal_command(command);
 				}
 				else{//run command if pipe is found during tokenizing
-					printf("inside else");
 					char ** before_pipe = before_split_tokenizer(command);
 					char ** after_pipe = after_split_tokenizer(command);
 					run_piped_command(before_pipe, after_pipe);
-				}
+				}printf("inside else");
 			}
 		}
 		free(input);//free token
