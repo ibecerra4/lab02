@@ -21,7 +21,7 @@ void run_cd(char **args){
 void run_help(void){
 	printf("\n");
 	printf("LAB2 SHELL, version 1.0\n");
-	printf("These shell commands are defined internally.  Type `help' to see this list.\n");
+	printf("These shell commands are defined internally.  Type 'help' to see this list.\n");
 	printf("cd 		Change directory\n");
 	printf("exit		Exit shell\n");
 	printf("\n");
@@ -32,13 +32,14 @@ int checkForIORedirection(char** commands){ //Takes tokinzed commands ; Returns 
     int redirectOutput = 0; //'>' for output redirection.
     int commandNumber = 0; //Index to iterate through commands.
 
-    for(;commandNumber < strlen(commands); commandNumber++){ //Check if user input contains '<' or '>' to check for io redirect.
-        if(strcmp(commands[commandNumber], '>') == 0){
+    while(commands[commandNumber] != NULL){ //Check if user input contains '<' or '>' to check for io redirect.
+        if(strcmp(commands[commandNumber], ">") == 0){
             redirectInput++; //We need to redirect input.
         }
-        if(strcmp(commands[commandNumber], '<') == 0){
+        if(strcmp(commands[commandNumber], "<") == 0){
             redirectOutput++; //We need to redirect output.
         }
+		commandNumber++;
     }
 
     if(redirectInput > 1 || redirectOutput > 1){ //If we have multiple redirections, then we have an error.
@@ -57,10 +58,12 @@ int checkForIORedirection(char** commands){ //Takes tokinzed commands ; Returns 
 
 
 char* getFileName(char** commands){//Get the argument before the "<" or ">" symbol.
-    for(int commandNumber = 0; commandNumber < strlen(commands); commandNumber++ ){
-        if(strcmp(commands[commandNumber], '<') == 0 || strcmp(commands[commandNumber], '>' == 0)){
+    int commandNumber = 0;
+	while(commands[commandNumber] != NULL){
+        if(strcmp(commands[commandNumber], "<") == 0 || strcmp(commands[commandNumber], ">") == 0){
             return commands[commandNumber - 1];
         }
+		commandNumber++;
     }
     return NULL;
 }
@@ -263,7 +266,6 @@ int main(int argc, char **arg){
 					char ** after_pipe = after_split_tokenizer(command);
 					run_piped_command(before_pipe, after_pipe);
 				}
-				
 			}
 		}
 		free(input);//free token
