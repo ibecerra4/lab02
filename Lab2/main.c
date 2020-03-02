@@ -129,9 +129,9 @@ char **before_split_tokenizer(char **args){
 char **after_split_tokenizer(char **args){
 	char **after_pipe;
 	int i=pipeAt;
-	while( *args != '\0'){
+	while( **args != '\0'){
 		after_pipe[i] = args[i];
-		args++;
+		*args++;
 	}
 	return after_pipe;	
 }
@@ -258,6 +258,7 @@ int main(int argc, char **arg){
 					run_normal_command(command);
 				}
 				else{//run command if pipe is found during tokenizing
+					printf("inside else");
 					char ** before_pipe = before_split_tokenizer(command);
 					char ** after_pipe = after_split_tokenizer(command);
 					run_piped_command(before_pipe, after_pipe);
