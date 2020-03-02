@@ -8,11 +8,7 @@
 #include <signal.h>
 #include <sys/types.h>
 
-<<<<<<< HEAD
-int flag, pipeAt, countWords;
-=======
 int flag, pipeAt, redirectFlag;
->>>>>>> 5f8e25441133f529451d05276e93b71428f73756
 char *commands[] = { "cd", "help", "exit"}; //Commands to be searched in bin
 
 
@@ -107,10 +103,10 @@ char **tokenize(char *input){ //Process user line
 
 		tokens[tokenNumber] = word; //Store token
 		
-		//if found pipe, then set flag to 1 so when calling from main, execute pipe command if flag is 1
+		//if found pipe, then set flag to 1 so when calling from main, execute pipe command or normal command
 		if(strcmp(tokens[tokenNumber], "|")== 0){
 			flag = 1;
-			pipeAt = tokenNumber; 
+			pipeAt = tokenNumber;
 		}
 
 		tokenNumber++;//Increase index
@@ -140,9 +136,9 @@ char **before_split_tokenizer(char **args){
 char **after_split_tokenizer(char **args){
 	char **after_pipe;
 	int i=pipeAt;
-	while(i != countWords){
+	while( *args != '\0'){
 		after_pipe[i] = args[i];
-		i++;
+		args++;
 	}
 	return after_pipe;	
 }
@@ -275,15 +271,11 @@ int main(int argc, char **arg){
 					char ** after_pipe = after_split_tokenizer(command);
 				
 					run_piped_command(before_pipe, after_pipe);
-<<<<<<< HEAD
-				}printf("inside else");
-=======
 				}
 				if(redirectFlag == 1){
 					int operation = checkForIORedirection(command);
 					redirect(command, operation, getFileName(command));
 				}
->>>>>>> 5f8e25441133f529451d05276e93b71428f73756
 			}
 		}
 		free(input);//free token
