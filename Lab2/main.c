@@ -11,20 +11,10 @@
 int flag, pipeAt;
 char *commands[] = { "cd", "help", "exit"}; //Commands to be searched in bin
 
+
 //method to change directory
 void run_cd(char **args){
-    char** directories;
-
-	char * directory = strtok(args[1], "\\");
-
-    int counter = 0;
-    while(directory != NULL){
-        directories[counter] = directory;
-        directory = strtok(NULL, "\\");
-    }
-	for(int path = 0; path < strlen(directories); path++){
-		chdir(directories[path]);
-	}
+    chdir(args[1]);
 }
 
 //method to print out internally defined commands
@@ -185,7 +175,7 @@ void pwd(){
 	getcwd(cwd, sizeof(cwd));//get current working directory
 	setenv("PS1", "$", 1);//override PS1 variable with dollar sign
 	printf("%s@%s%s", getenv("USER"), getenv("HOME"), getenv("PS1"));//print USER, HOME, and PS1
-	printf(":%s", cwd); //print working directory
+	printf(":%s\t$", cwd); //print working directory
 } 
 
 //method to run a command that pipes
