@@ -13,8 +13,16 @@ char *commands[] = { "cd", "help", "exit"}; //Commands to be searched in bin
 
 //method to change directory
 void run_cd(char **args){
-	char ** directories = strtok(args[1], '\\');
-	for(int path = 0;path <len(directories);path++){
+    char** directories;
+
+	char * directory = strtok(args[1], "\\");
+
+    int counter = 0;
+    while(directory != NULL){
+        directories[counter] = directory;
+        directory = strtok(NULL, "\\");
+    }
+	for(int path = 0; path < strlen(directories); path++){
 		chdir(directories[path]);
 	}
 }
@@ -34,7 +42,7 @@ int checkForIORedirection(char** commands){ //Takes tokinzed commands ; Returns 
     int redirectOutput = 0; //'>' for output redirection.
     int commandNumber = 0; //Index to iterate through commands.
 
-    for(;commandNumber < len(commands); commandNumber++){ //Check if user input contains '<' or '>' to check for io redirect.
+    for(;commandNumber < strlen(commands); commandNumber++){ //Check if user input contains '<' or '>' to check for io redirect.
         if(strcmp(commands[commandNumber], '>') == 0){
             redirectInput++; //We need to redirect input.
         }
@@ -59,7 +67,7 @@ int checkForIORedirection(char** commands){ //Takes tokinzed commands ; Returns 
 
 
 char* getFileName(char** commands){//Get the argument before the "<" or ">" symbol.
-    for(int commandNumber = 0; commandNumber < len(commands); commandNumber++ ){
+    for(int commandNumber = 0; commandNumber < strlen(commands); commandNumber++ ){
         if(strcmp(commands[commandNumber], '<') == 0 || strcmp(commands[commandNumber], '>' == 0)){
             return commands[commandNumber - 1];
         }
@@ -85,7 +93,7 @@ int do_command(char **commands, int IOflag, char* fileName) { //Takes processed 
       freopen(fileName, "w+", stdout);
     }
     // Execute the command
-    result = execvp(args[0], args);
+    result = execvp(commands[0], commands);
 
     exit(-1);
     }
