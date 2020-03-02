@@ -174,8 +174,7 @@ void pwd(){
 	char cwd[1024]; 
 	getcwd(cwd, sizeof(cwd));//get current working directory
 	setenv("PS1", "$", 1);//override PS1 variable with dollar sign
-	printf("%s@%s%s", getenv("USER"), getenv("HOME"), getenv("PS1"));//print USER, HOME, and PS1
-	printf(":%s\t$", cwd); //print working directory
+	printf("%s@%s%s", getenv("USER"), cwd, getenv("PS1"));//print USER, HOME, and PS1
 } 
 
 //method to run a command that pipes
